@@ -1,0 +1,39 @@
+
+-- Create database in Azure SQL via SSMS (run separately):
+-- CREATE DATABASE AgriEnergyConnect;
+
+-- Schema
+CREATE TABLE Roles (
+    RoleId INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE Users (
+    UserId INT IDENTITY(1,1) PRIMARY KEY,
+    FullName NVARCHAR(120) NOT NULL,
+    Email NVARCHAR(120) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(200) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+
+CREATE TABLE UserRoles (
+    UserId INT NOT NULL FOREIGN KEY REFERENCES Users(UserId),
+    RoleId INT NOT NULL FOREIGN KEY REFERENCES Roles(RoleId),
+    CONSTRAINT PK_UserRoles PRIMARY KEY (UserId, RoleId)
+);
+
+CREATE TABLE Farmers (
+    FarmerId INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(120) NOT NULL,
+    Email NVARCHAR(120) NOT NULL,
+    Phone NVARCHAR(40) NULL,
+    Location NVARCHAR(160) NULL
+);
+
+CREATE TABLE Products (
+    ProductId INT IDENTITY(1,1) PRIMARY KEY,
+    FarmerId INT NOT NULL FOREIGN KEY REFERENCES Farmers(FarmerId),
+    Name NVARCHAR(120) NOT NULL,
+    Category NVARCHAR(80) NOT NULL,
+    ProductionDate DATE NOT NULL
+);

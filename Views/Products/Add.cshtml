@@ -1,0 +1,53 @@
+@{
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card p-4 mb-4">
+            <h3 class="card-title mb-3">Add Product</h3>
+
+            @if (TempData["Msg"] != null)
+            {
+                <div class="alert alert-success">@TempData["Msg"]</div>
+            }
+            @if (TempData["Err"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Err"]</div>
+            }
+
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Product Name</label>
+                    <input name="name" class="form-control" placeholder="Enter product name" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <input name="category" class="form-control" placeholder="Enter category" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Production Date</label>
+                    <input type="date" name="productionDate" class="form-control" required />
+                </div>
+
+                @if (ViewBag.Farmers != null)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Farmer</label>
+                        <select name="farmerId" class="form-select" required>
+                            <option value="">-- Select Farmer --</option>
+                            @foreach (var f in ViewBag.Farmers)
+                            {
+                                <option value="@f.FarmerId">@f.Name</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary w-100">Add Product</button>
+            </form>
+        </div>
+    </div>
+</div>

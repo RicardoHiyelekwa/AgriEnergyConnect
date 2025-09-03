@@ -1,0 +1,41 @@
+@{
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card p-4 mb-4">
+            <h3 class="card-title mb-3">Add Farmer</h3>
+
+            @if (TempData["Msg"] != null)
+            {
+                <div class="alert alert-success">@TempData["Msg"]</div>
+            }
+            @if (TempData["Err"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Err"]</div>
+            }
+
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input name="Name" class="form-control" placeholder="Enter full name" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input name="Email" type="email" class="form-control" placeholder="Enter email" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input name="Phone" class="form-control" placeholder="Enter phone number" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Location</label>
+                    <input name="Location" class="form-control" placeholder="Enter location" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Add Farmer</button>
+            </form>
+        </div>
+    </div>
+</div>
