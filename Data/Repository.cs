@@ -22,38 +22,28 @@ namespace AgriEnergyConnect.Data
             return await db.QueryFirstOrDefaultAsync<User>(sql, new { Email = email });
         }
 
-        public async Task<int> CreateUserAsync(User u, string roleName)
+        public async Task<int> CreateUserAsync(User u)
         {
             const string insertUser = @"
-                INSERT INTO Users (FullName, Email, PasswordHash, CreatedAt)
+                INSERT INTO Users (FullName, Email, PasswordHash, Role, CreatedAt)
                 OUTPUT INSERTED.UserId
-                VALUES (@FullName, @Email, @PasswordHash, SYSUTCDATETIME());";
-
-            const string getRole = "SELECT RoleId FROM Roles WHERE Name = @Name;";
-            const string insertUserRole = "INSERT INTO UserRoles(UserId, RoleId) VALUES(@UserId, @RoleId);";
+                VALUES (@FullName, @Email, @PasswordHash, @Role, SYSUTCDATETIME());";
 
             using var db = Conn();
-            var userId = await db.ExecuteScalarAsync<int>(insertUser, u);
-            var roleId = await db.ExecuteScalarAsync<int>(getRole, new { Name = roleName });
-            await db.ExecuteAsync(insertUserRole, new { UserId = userId, RoleId = roleId });
-            return userId;
+            return await db.ExecuteScalarAsync<int>(insertUser, u);
         }
 
         public async Task<bool> IsInRoleAsync(int userId, string roleName)
         {
-            const string sql = @"
-                SELECT COUNT(*) FROM UserRoles ur
-                JOIN Roles r ON r.RoleId = ur.RoleId
-                WHERE ur.UserId = @UserId AND r.Name = @RoleName;";
-
+            const string sql = "SELECT COUNT(*) FROM Users WHERE UserId = @UserId AND Role = @Role;";
             using var db = Conn();
-            var count = await db.ExecuteScalarAsync<int>(sql, new { UserId = userId, RoleName = roleName });
+            var count = await db.ExecuteScalarAsync<int>(sql, new { UserId = userId, Role = roleName });
             return count > 0;
         }
         #endregion
 
         #region Farmers
-        public async Task<int> AddFarmerAsync(Farmer f, int? userId = null)
+        public async Task<int> AddFarmerAsync(Farmer f)
         {
             const string sql = @"
                 INSERT INTO Farmers (Name, Email, Phone, Location, UserId)
@@ -61,14 +51,7 @@ namespace AgriEnergyConnect.Data
                 VALUES (@Name, @Email, @Phone, @Location, @UserId);";
 
             using var db = Conn();
-            return await db.ExecuteScalarAsync<int>(sql, new
-            {
-                f.Name,
-                f.Email,
-                f.Phone,
-                f.Location,
-                UserId = userId
-            });
+            return await db.ExecuteScalarAsync<int>(sql, f);
         }
 
         public async Task<Farmer?> GetFarmerByIdAsync(int farmerId)
@@ -105,7 +88,8 @@ namespace AgriEnergyConnect.Data
             return await db.ExecuteScalarAsync<int>(sql, p);
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByFarmerAsync(int farmerId, DateTime? from, DateTime? to, string? category)
+        public async Task<IEnumerable<Product>> GetProductsByFarmerAsync(
+            int farmerId, DateTime? from, DateTime? to, string? category)
         {
             var sql = "SELECT * FROM Products WHERE FarmerId = @FarmerId";
 
@@ -116,7 +100,8 @@ namespace AgriEnergyConnect.Data
             sql += " ORDER BY ProductionDate DESC";
 
             using var db = Conn();
-            return await db.QueryAsync<Product>(sql, new { FarmerId = farmerId, From = from, To = to, Category = category });
+            return await db.QueryAsync<Product>(sql,
+                new { FarmerId = farmerId, From = from, To = to, Category = category });
         }
         #endregion
     }

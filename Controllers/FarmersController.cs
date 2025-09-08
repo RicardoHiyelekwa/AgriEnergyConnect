@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace AgriEnergyConnect.Controllers
             var isEmployee = await _repo.IsInRoleAsync(uid, "Employee");
             var existingFarmer = await _repo.GetFarmerByUserIdAsync(uid);
 
-            if (existingFarmer != null)
+            if (existingFarmer != null && !isEmployee)
             {
                 TempData["Err"] = "You already have a farmer profile.";
                 return RedirectToAction("Add");
@@ -32,23 +32,25 @@ namespace AgriEnergyConnect.Controllers
 
             if (!isEmployee)
             {
-                // Farmer criando seu pr�prio perfil
-                await _repo.AddFarmerAsync(model, uid);
+                // Farmer criando o próprio perfil → atribui o UserId do utilizador
+                model.UserId = uid;
+                await _repo.AddFarmerAsync(model);
                 TempData["Msg"] = "Your farmer profile has been created successfully.";
                 return RedirectToAction("Add");
             }
 
-            // Employee criando outro farmer
+            // Employee criando outro Farmer (não precisa associar ao UserId dele)
             await _repo.AddFarmerAsync(model);
             TempData["Msg"] = "Farmer added successfully by Employee.";
             return RedirectToAction("Add");
         }
 
+
         [HttpGet]
         public async Task<IActionResult> List()
         {
             var farmers = await _repo.GetAllFarmersAsync();
-            return View(farmers); // ok, model � IEnumerable<Farmer>
+            return View(farmers); // ok, model é IEnumerable<Farmer>
         }
 
 

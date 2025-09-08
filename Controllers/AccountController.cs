@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
@@ -40,14 +40,21 @@ namespace AgriEnergyConnect.Controllers
 
         [HttpGet]
         public IActionResult RegisterFarmer() => View();
-
         [HttpPost]
         public async Task<IActionResult> RegisterFarmer(string fullName, string email, string password)
         {
-            var u = new User { FullName = fullName, Email = email, PasswordHash = BCrypt.Net.BCrypt.HashPassword(password) };
-            await _repo.CreateUserAsync(u, "Farmer");
+            var u = new User
+            {
+                FullName = fullName,
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                Role = "Farmer"  // 👈 define o role aqui
+            };
+
+            await _repo.CreateUserAsync(u);
             return RedirectToAction("Login");
         }
+
 
         public async Task<IActionResult> Logout()
         {
