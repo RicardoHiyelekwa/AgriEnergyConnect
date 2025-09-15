@@ -16,10 +16,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Denied";
     });
 
+// Configuração híbrida (SQL + Mongo + Mode)
 builder.Services.AddSingleton<DbConfig>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
-    return new DbConfig(config.GetConnectionString("DefaultConnection") ?? "");
+
+    var sqlCs = config.GetConnectionString("DefaultConnection") ?? "";
+    var mongoCs = config.GetConnectionString("MongoConnection") ?? "mongodb://localhost:27017";
+    var mongoDb = config.GetConnectionString("MongoDatabase") ?? "AgriEnergyConnect";
+
+    var modeStr = config["Persistence:Mode"] ?? "Sql";
+    var mode = Enum.TryParse<PersistenceMode>(modeStr, out var parsedMode) ? parsedMode : PersistenceMode.Sql;
+
+    return new DbConfig(sqlCs, mongoCs, mongoDb, mode);
 });
 
 var app = builder.Build();

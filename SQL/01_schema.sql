@@ -37,3 +37,5 @@ CREATE TABLE Products (
     Category NVARCHAR(80) NOT NULL,
     ProductionDate DATE NOT NULL
 );
+
+
