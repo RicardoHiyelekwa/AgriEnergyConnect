@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agri-Energy Connect</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <i class="bi bi-leaf-fill me-2"></i> Agri‑Energy Connect
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-controls="navbarsExample" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExample">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
+          </ul>
+          <ul class="navbar-nav">
+            @if (User?.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <li class="nav-item">
+                    <form method="post" action="/Account/Logout" class="d-inline">
+                        <button class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-light btn-sm" href="/Account/Login?role=Farmer"><i class="bi bi-person-circle me-1"></i> Farmer Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-warning btn-sm" href="/Account/Login?role=Employee"><i class="bi bi-briefcase-fill me-1"></i> Employee Login</a>
+                </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      @RenderBody()
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-success text-light">
+      <div class="container text-center">
+        <small>&copy; 2025 Agri‑Energy Connect. Empowering farmers with green energy solutions.</small>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  function toggleDarkMode(){
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  }
+  if(localStorage.getItem('darkMode') === 'true'){
+    document.body.classList.add('dark-mode');
+  }
+</script>
+<button onclick="toggleDarkMode()" class="btn btn-sm btn-outline-light position-fixed bottom-0 end-0 m-3">
+  <i class="bi bi-moon-fill"></i>
+</button>
+</body>
+</html>

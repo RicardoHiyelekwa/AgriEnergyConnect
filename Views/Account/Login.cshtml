@@ -1,0 +1,37 @@
+@{
+    var expectedRole = ViewData["ExpectedRole"] as string;
+}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-light">
+        <h4 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Login @(!string.IsNullOrEmpty(expectedRole) ? ("(" + expectedRole + ")") : "")</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <input type="hidden" name="expectedRole" value="@expectedRole" />
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" name="email" placeholder="you@example.com" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input class="form-control" name="password" type="password" placeholder="••••••••" />
+          </div>
+          <button class="btn btn-success rounded-pill"><i class="bi bi-box-arrow-in-right me-1"></i> Login</button>
+          <a class="btn btn-link" href="/"><i class="bi bi-x-circle me-1"></i> Cancel</a>
+          @if (!string.IsNullOrEmpty(expectedRole))
+          {
+              <div class="mt-3 text-muted">Use an account that has the <strong>@expectedRole</strong> role.</div>
+          }
+          <div class="text-danger mt-2">
+            @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div><i class="bi bi-exclamation-triangle me-1"></i>@err.ErrorMessage</div>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

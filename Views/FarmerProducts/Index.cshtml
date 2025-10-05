@@ -1,0 +1,55 @@
+@model IEnumerable<AgriEnergyConnect.Models.Product>
+@{
+    var farmerName = ViewData["FarmerName"] as string ?? "Your Products";
+}
+
+<h2 class="mb-4 text-success"><i class="bi bi-basket-fill me-2"></i>@farmerName</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger"><i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>@TempData["Success"]</div>
+}
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-success text-light">
+    <i class="bi bi-box-seam me-2"></i>My Products
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-striped mb-0">
+        <thead><tr><th>Name</th><th>Category</th><th>Production Date</th></tr></thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr><td>@p.Name</td><td>@p.Category</td><td>@p.ProductionDate.ToString("yyyy-MM-dd")</td></tr>
+            }
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-light">
+    <i class="bi bi-plus-circle me-2"></i>Add New Product
+  </div>
+  <div class="card-body">
+    <form method="post" action="/FarmerProducts/Add" class="row g-3">
+        <input type="hidden" name="farmerId" value="@Model.FirstOrDefault()?.FarmerId ?? 0" />
+        <div class="col-md-4">
+            <input class="form-control" name="name" placeholder="Product name" required />
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" name="category" placeholder="Category" required />
+        </div>
+        <div class="col-md-3">
+            <input type="date" class="form-control" name="productionDate" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-success rounded-pill"><i class="bi bi-plus-lg me-1"></i> Add</button>
+        </div>
+    </form>
+  </div>
+</div>

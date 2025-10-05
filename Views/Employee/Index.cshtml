@@ -1,0 +1,64 @@
+@{
+    var farmers = ViewData["Farmers"] as List<AgriEnergyConnect.Models.Farmer> ?? new List<AgriEnergyConnect.Models.Farmer>();
+    var products = ViewData["Products"] as List<AgriEnergyConnect.Models.Product> ?? new List<AgriEnergyConnect.Models.Product>();
+    var selectedFarmerId = ViewData["SelectedFarmerId"] as int?;
+}
+
+<h2 class="mb-4 text-warning"><i class="bi bi-briefcase-fill me-2"></i>Employee Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-warning text-dark">
+            <i class="bi bi-people-fill me-2"></i>Farmers
+          </div>
+          <ul class="list-group list-group-flush">
+            @foreach (var f in farmers)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="/Employee/Index?farmerId=@f.Id"><i class="bi bi-person me-1"></i>@f.Name</a>
+                    <span class="badge bg-secondary">@f.Email</span>
+                </li>
+            }
+          </ul>
+          <div class="card-body">
+            <a class="btn btn-success rounded-pill" href="/Employee/AddFarmer"><i class="bi bi-person-plus-fill me-2"></i>Add New Farmer</a>
+          </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <i class="bi bi-box-seam me-2"></i>Products @if(selectedFarmerId!=null){ <small class="text-muted">for selected farmer</small> }
+          </div>
+          <div class="card-body">
+            <form method="get" class="row g-2 mb-3">
+                <input type="hidden" name="farmerId" value="@selectedFarmerId" />
+                <div class="col-auto">
+                    <input name="category" class="form-control" placeholder="Category" />
+                </div>
+                <div class="col-auto">
+                    <input type="date" name="from" class="form-control" />
+                </div>
+                <div class="col-auto">
+                    <input type="date" name="to" class="form-control" />
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-secondary"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
+                </div>
+            </form>
+
+            <table class="table table-hover">
+                <thead><tr><th>Name</th><th>Category</th><th>Production Date</th></tr></thead>
+                <tbody>
+                    @foreach (var p in products)
+                    {
+                        <tr><td>@p.Name</td><td>@p.Category</td><td>@p.ProductionDate.ToString("yyyy-MM-dd")</td></tr>
+                    }
+                </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+</div>
