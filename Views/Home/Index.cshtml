@@ -1,16 +1,59 @@
-@{
-    ViewData["Title"] = "Welcome";
-}
-<div class="text-center py-5">
-    <h1 class="display-4 fw-bold text-success"><i class="bi bi-leaf-fill me-2"></i>Agri‑Energy Connect</h1>
-    <p class="lead text-muted">Prototype platform connecting farmers and green energy solutions.</p>
+@using Microsoft.AspNetCore.Identity
+@using AgriEnergyConnect.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
-    <div class="mt-4">
-        <a class="btn btn-lg btn-success me-2 rounded-pill" href="/Account/Login?role=Farmer">
-            <i class="bi bi-person-circle me-2"></i> Login as Farmer
-        </a>
-        <a class="btn btn-lg btn-warning rounded-pill" href="/Account/Login?role=Employee">
-            <i class="bi bi-briefcase-fill me-2"></i> Login as Employee
-        </a>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container text-center mt-5">
+    <div class="mb-4">
+        <h1 class="display-4 fw-bold text-success">
+            <i class="bi bi-leaf"></i> AgriEnergy Connect
+        </h1>
+        <p class="lead text-muted">Connecting Farmers with Green Energy Solutions</p>
     </div>
+
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <!-- Quando NÃO está logado -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a class="btn btn-success btn-lg btn-rounded shadow"
+               asp-controller="Account" asp-action="Login" asp-route-role="Farmer">
+                <i class="bi bi-person-circle me-2"></i> Login as Farmer
+            </a>
+            <a class="btn btn-primary btn-lg btn-rounded shadow"
+               asp-controller="Account" asp-action="Login" asp-route-role="Employee">
+                <i class="bi bi-briefcase-fill me-2"></i> Login as Employee
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Quando JÁ está logado -->
+        <div class="card shadow-lg border-0 mx-auto mt-5" style="max-width: 600px;">
+            <div class="card-body">
+                <h3 class="card-title text-success mb-3">
+                    <i class="bi bi-person-check-fill"></i> Welcome, @User.Identity?.Name!
+                </h3>
+                <p class="text-muted">You are logged in successfully. Access your dashboard below:</p>
+
+                @if (User.IsInRole("Farmer"))
+                {
+                    <a class="btn btn-outline-success btn-lg btn-rounded mt-3"
+                       asp-controller="FarmerProducts" asp-action="Index">
+                        <i class="bi bi-box-seam"></i> Go to Farmer Dashboard
+                    </a>
+                }
+                else if (User.IsInRole("Employee"))
+                {
+                    <a class="btn btn-outline-primary btn-lg btn-rounded mt-3"
+                       asp-controller="Employee" asp-action="Index">
+                        <i class="bi bi-people-fill"></i> Go to Employee Dashboard
+                    </a>
+                }
+            </div>
+        </div>
+    }
 </div>
