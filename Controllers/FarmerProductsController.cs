@@ -33,11 +33,20 @@ namespace AgriEnergyConnect.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(int farmerId, string name, string category, DateTime productionDate)
+        public async Task<IActionResult> Add(string name, string category, DateTime productionDate)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(category))
             {
                 TempData["Error"] = "Name and category are required.";
+                return RedirectToAction("Index");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var farmer = await _context.Farmers.FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+
+            if (farmer == null)
+            {
+                TempData["Error"] = "Farmer profile not found.";
                 return RedirectToAction("Index");
             }
 
@@ -46,12 +55,15 @@ namespace AgriEnergyConnect.Controllers
                 Name = name,
                 Category = category,
                 ProductionDate = productionDate,
-                FarmerId = farmerId
+                FarmerId = farmer.Id
             };
+
             _context.Products.Add(prod);
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Product added.";
+
+            TempData["Success"] = "Product added successfully.";
             return RedirectToAction("Index");
         }
+
     }
 }

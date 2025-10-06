@@ -17,6 +17,8 @@ This project implements the **Part 2 requirements of the POE (Agri-Energy Connec
   - Add new farmer profiles (also creates Identity user with Farmer role, default password `Farmer@1234`)
   - View all products of any farmer
   - Filter products by category and date range
+  - To view the list of products associated with a specific farmer, the user must click on the farmer’s name displayed in the list on the left-hand side.
+	- 
 - **Database**
   - SQL Server connection string in `appsettings.json`
   - EF Core `DbContext` and entities (`Farmer`, `Product`, `ApplicationUser`)
