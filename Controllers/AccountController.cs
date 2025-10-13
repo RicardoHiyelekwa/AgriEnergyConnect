@@ -24,6 +24,7 @@ namespace AgriEnergyConnect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, string? expectedRole, string? returnUrl)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
@@ -72,9 +73,11 @@ namespace AgriEnergyConnect.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            TempData["Success"] = "You have been logged out successfully.";
             return RedirectToAction("Index", "Home");
         }
     }

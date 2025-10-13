@@ -33,6 +33,34 @@ namespace AgriEnergyConnect.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> AddAjax(int farmerId, string name, string category, DateTime productionDate)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(category))
+                return Json(new { success = false, message = "Name and category are required." });
+
+            var prod = new Product
+            {
+                Name = name,
+                Category = category,
+                ProductionDate = productionDate,
+                FarmerId = farmerId
+            };
+
+            _context.Products.Add(prod);
+            await _context.SaveChangesAsync();
+
+            var products = await _context.Products
+                .Where(p => p.FarmerId == farmerId)
+                .OrderByDescending(p => p.ProductionDate)
+                .ToListAsync();
+
+            var html = await this.RenderViewAsync("_ProductTablePartial", products, true);
+            return Json(new { success = true, html });
+        }
+
+
+
+        [HttpPost]
         public async Task<IActionResult> Add(string name, string category, DateTime productionDate)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(category))

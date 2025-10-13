@@ -53,6 +53,27 @@ namespace AgriEnergyConnect.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(int farmerId, string? category, DateTime? from, DateTime? to)
+        {
+            var query = _context.Products.Where(p => p.FarmerId == farmerId);
+
+            if (!string.IsNullOrEmpty(category))
+                query = query.Where(p => p.Category.Contains(category));
+
+            if (from.HasValue)
+                query = query.Where(p => p.ProductionDate >= from);
+
+            if (to.HasValue)
+                query = query.Where(p => p.ProductionDate <= to);
+
+            var products = await query.OrderByDescending(p => p.ProductionDate).ToListAsync();
+
+            // Retorna apenas o HTML parcial da tabela
+            return PartialView("_ProductsTablePartial", products);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> AddFarmer(string name, string email)
         {

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<AgriEnergyConnect.Models.Product>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th><i class="bi bi-tag me-1"></i> Name</th>
+                <th><i class="bi bi-tags me-1"></i> Category</th>
+                <th><i class="bi bi-calendar-event me-1"></i> Production Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>@p.Category</td>
+                    <td>@p.ProductionDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

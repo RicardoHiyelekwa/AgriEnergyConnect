@@ -1,64 +1,183 @@
+@using Microsoft.AspNetCore.Identity
+@using AgriEnergyConnect.Models
+@inject SignInManager<ApplicationUser> SignInManager
+
 @{
-    var farmers = ViewData["Farmers"] as List<AgriEnergyConnect.Models.Farmer> ?? new List<AgriEnergyConnect.Models.Farmer>();
-    var products = ViewData["Products"] as List<AgriEnergyConnect.Models.Product> ?? new List<AgriEnergyConnect.Models.Product>();
-    var selectedFarmerId = ViewData["SelectedFarmerId"] as int?;
+    var farmers = ViewData["Farmers"] as List<AgriEnergyConnect.Models.Farmer> ?? new();
+    ViewData["Title"] = "Employee Dashboard";
 }
 
-<h2 class="mb-4 text-warning"><i class="bi bi-briefcase-fill me-2"></i>Employee Dashboard</h2>
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-warning fw-bold mb-0">
+        <i class="bi bi-briefcase-fill me-2"></i>Employee Dashboard
+    </h2>
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
+            <button type="submit" id="logoutBtn" class="btn btn-outline-danger rounded-pill px-4 position-relative">
+                <span id="logoutText"><i class="bi bi-box-arrow-right me-1"></i> Logout</span>
+                <span id="logoutSpinner" class="spinner-border spinner-border-sm text-danger ms-2" style="display:none;"></span>
+            </button>
+        </form>
+    }
+</div>
 
 <div class="row">
+    <!-- FARMERS LIST -->
     <div class="col-md-4">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-warning text-dark">
-            <i class="bi bi-people-fill me-2"></i>Farmers
-          </div>
-          <ul class="list-group list-group-flush">
-            @foreach (var f in farmers)
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="/Employee/Index?farmerId=@f.Id"><i class="bi bi-person me-1"></i>@f.Name</a>
-                    <span class="badge bg-secondary">@f.Email</span>
-                </li>
-            }
-          </ul>
-          <div class="card-body">
-            <a class="btn btn-success rounded-pill" href="/Employee/AddFarmer"><i class="bi bi-person-plus-fill me-2"></i>Add New Farmer</a>
-          </div>
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-people-fill me-2"></i>Farmers
+            </div>
+            <ul class="list-group list-group-flush" id="farmerList">
+                @foreach (var f in farmers)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center farmer-item"
+                        data-farmer-id="@f.Id" data-farmer-name="@f.Name"
+                        style="cursor:pointer;">
+                        <span><i class="bi bi-person text-success me-1"></i>@f.Name</span>
+                        <span class="badge bg-secondary">@f.Email</span>
+                    </li>
+                }
+            </ul>
+            <div class="card-body text-center">
+                <a class="btn btn-success rounded-pill px-4"
+                   href="/Employee/AddFarmer">
+                    <i class="bi bi-person-plus-fill me-2"></i>Add New Farmer
+                </a>
+            </div>
         </div>
     </div>
 
+    <!-- PRODUCTS AREA -->
     <div class="col-md-8">
-        <div class="card shadow-sm">
-          <div class="card-header bg-light">
-            <i class="bi bi-box-seam me-2"></i>Products @if(selectedFarmerId!=null){ <small class="text-muted">for selected farmer</small> }
-          </div>
-          <div class="card-body">
-            <form method="get" class="row g-2 mb-3">
-                <input type="hidden" name="farmerId" value="@selectedFarmerId" />
-                <div class="col-auto">
-                    <input name="category" class="form-control" placeholder="Category" />
-                </div>
-                <div class="col-auto">
-                    <input type="date" name="from" class="form-control" />
-                </div>
-                <div class="col-auto">
-                    <input type="date" name="to" class="form-control" />
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-outline-secondary"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
-                </div>
-            </form>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light fw-semibold">
+                <i class="bi bi-box-seam text-success me-2"></i>
+                <span id="productHeaderText">Products for selected farmer</span>
+            </div>
 
-            <table class="table table-hover">
-                <thead><tr><th>Name</th><th>Category</th><th>Production Date</th></tr></thead>
-                <tbody>
-                    @foreach (var p in products)
-                    {
-                        <tr><td>@p.Name</td><td>@p.Category</td><td>@p.ProductionDate.ToString("yyyy-MM-dd")</td></tr>
-                    }
-                </tbody>
-            </table>
-          </div>
+            <div class="card-body">
+                <!-- Filter -->
+                <form id="filterForm" class="row g-2 mb-3">
+                    <div class="col-auto">
+                        <input name="category" id="filterCategory" class="form-control" placeholder="Category" />
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" name="from" id="filterFrom" class="form-control" />
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" name="to" id="filterTo" class="form-control" />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-outline-secondary rounded-pill">
+                            <i class="bi bi-funnel-fill me-1"></i> Filter
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Products Table -->
+                <div id="productsContainer">
+                    <div class="alert alert-info text-center shadow-sm">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Select a farmer on the left to view their products.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <style>
+        .farmer-item:hover {
+            background-color: rgba(255, 193, 7, 0.15);
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        #logoutBtn.loading {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .spinner-border {
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+    </style>
+
+    <script>
+        // Variáveis globais
+        let selectedFarmerId = null;
+
+        // Atualiza o header
+        function updateHeader(name) {
+            const header = document.getElementById("productHeaderText");
+            header.innerHTML = `
+                        <i class="bi bi-box-seam text-success me-2"></i>
+                        Products for Farmer: <span class="fw-bold text-success">${name}</span>`;
+        }
+
+        // Carrega produtos via AJAX
+        async function loadProducts(farmerId, filters = {}) {
+            const container = document.getElementById("productsContainer");
+            container.innerHTML = `
+                        <div class="text-center py-4 text-muted">
+                            <div class="spinner-border text-success" role="status"></div>
+                            <p class="mt-2">Loading products...</p>
+                        </div>`;
+
+            let query = `farmerId=${farmerId}`;
+            if (filters.category) query += `&category=${encodeURIComponent(filters.category)}`;
+            if (filters.from) query += `&from=${encodeURIComponent(filters.from)}`;
+            if (filters.to) query += `&to=${encodeURIComponent(filters.to)}`;
+
+            const response = await fetch(`/Employee/GetProducts?${query}`);
+            const html = await response.text();
+            container.innerHTML = html;
+        }
+
+        // Quando seleciona um Farmer
+        document.querySelectorAll(".farmer-item").forEach(item => {
+            item.addEventListener("click", () => {
+                selectedFarmerId = item.getAttribute("data-farmer-id");
+                const name = item.getAttribute("data-farmer-name");
+                updateHeader(name);
+                loadProducts(selectedFarmerId);
+            });
+        });
+
+        // Quando aplica filtro
+        document.getElementById("filterForm").addEventListener("submit", e => {
+            e.preventDefault();
+            if (!selectedFarmerId) {
+                alert("Please select a farmer first.");
+                return;
+            }
+            const filters = {
+                category: document.getElementById("filterCategory").value,
+                from: document.getElementById("filterFrom").value,
+                to: document.getElementById("filterTo").value
+            };
+            loadProducts(selectedFarmerId, filters);
+        });
+
+        // Logout com animação igual ao Farmer
+        const logoutForm = document.getElementById("logoutForm");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutText = document.getElementById("logoutText");
+        const logoutSpinner = document.getElementById("logoutSpinner");
+
+        logoutForm?.addEventListener("submit", (e) => {
+            logoutBtn.disabled = true;
+            logoutBtn.classList.add("loading");
+            logoutText.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Logging out...';
+            logoutSpinner.style.display = "inline-block";
+        });
+    </script>
+}

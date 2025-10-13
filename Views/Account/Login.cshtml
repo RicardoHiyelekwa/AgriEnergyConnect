@@ -1,37 +1,141 @@
 @{
     var expectedRole = ViewData["ExpectedRole"] as string;
 }
+
 <div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-success text-light">
-        <h4 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Login @(!string.IsNullOrEmpty(expectedRole) ? ("(" + expectedRole + ")") : "")</h4>
-      </div>
-      <div class="card-body">
-        <form method="post">
-          <input type="hidden" name="expectedRole" value="@expectedRole" />
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input class="form-control" name="email" placeholder="you@example.com" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input class="form-control" name="password" type="password" placeholder="••••••••" />
-          </div>
-          <button class="btn btn-success rounded-pill"><i class="bi bi-box-arrow-in-right me-1"></i> Login</button>
-          <a class="btn btn-link" href="/"><i class="bi bi-x-circle me-1"></i> Cancel</a>
-          @if (!string.IsNullOrEmpty(expectedRole))
-          {
-              <div class="mt-3 text-muted">Use an account that has the <strong>@expectedRole</strong> role.</div>
-          }
-          <div class="text-danger mt-2">
-            @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <div><i class="bi bi-exclamation-triangle me-1"></i>@err.ErrorMessage</div>
-            }
-          </div>
-        </form>
-      </div>
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-success text-light text-center py-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Login @(!string.IsNullOrEmpty(expectedRole) ? ("(" + expectedRole + ")") : "")
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="loginForm">
+                    <input type="hidden" name="expectedRole" value="@expectedRole" />
+
+                    <!-- EMAIL -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-envelope-fill text-success"></i>
+                            </span>
+                            <input class="form-control" name="email" type="email" placeholder="you@example.com" required />
+                        </div>
+                    </div>
+
+                    <!-- PASSWORD + EYE -->
+                    <div class="mb-3 position-relative">
+                        <label class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-lock-fill text-success"></i>
+                            </span>
+                            <input id="passwordInput" class="form-control" name="password" type="password" placeholder="••••••••" required />
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" tabindex="-1">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="d-flex align-items-center justify-content-between mt-4">
+                        <button type="submit" id="loginBtn" class="btn btn-success rounded-pill px-4 position-relative">
+                            <span id="loginText" class="transition-text">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            </span>
+                            <span id="loginSpinner" class="spinner-border spinner-border-sm text-light fade-in" style="display: none;" role="status" aria-hidden="true"></span>
+                        </button>
+
+                        <a class="btn btn-outline-secondary rounded-pill" href="/">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </a>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(expectedRole))
+                    {
+                        <div class="mt-3 text-muted small text-center">
+                            <i class="bi bi-info-circle"></i>
+                            Use an account with the <strong>@expectedRole</strong> role.
+                        </div>
+                    }
+
+                    <!-- ERROR DISPLAY -->
+                    <div class="text-danger mt-3 text-center">
+                        @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div><i class="bi bi-exclamation-triangle me-1"></i>@err.ErrorMessage</div>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+@section Scripts {
+    <style>
+        /* Fade animation */
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+            .fade-in.show {
+                opacity: 1;
+            }
+
+        .transition-text {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #loginBtn.loading {
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+            transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
+        }
+        /* Password eye hover */
+        #togglePassword {
+            border-left: none;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+            #togglePassword:hover {
+                background-color: rgba(25, 135, 84, 0.1);
+            }
+    </style>
+
+    <script>
+        // 🔁 Loading Animation on Login
+        const form = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginText = document.getElementById('loginText');
+        const loginSpinner = document.getElementById('loginSpinner');
+
+        form.addEventListener('submit', function () {
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            loginText.style.opacity = '0';
+            loginSpinner.style.display = 'inline-block';
+            setTimeout(() => {
+                loginSpinner.classList.add('show');
+                loginText.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Logging in...';
+                loginText.style.opacity = '1';
+            }, 200);
+        });
+
+        // 👁️ Show/Hide Password Toggle
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.innerHTML = type === 'password'
+                ? '<i class="bi bi-eye"></i>'
+                : '<i class="bi bi-eye-slash"></i>';
+        });
+    </script>
+}
+

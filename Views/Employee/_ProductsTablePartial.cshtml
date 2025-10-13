@@ -1,0 +1,31 @@
+﻿@model List<AgriEnergyConnect.Models.Product>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning text-center">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        No products found for this farmer.
+    </div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Production Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>@p.Category</td>
+                    <td>@p.ProductionDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
