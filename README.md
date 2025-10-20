@@ -53,7 +53,7 @@ This project implements the **Part 2 requirements of the POE (Agri-Energy Connec
    dotnet run
    ```
 3. The database schema is created automatically with `EnsureCreated()` and seeded.
-4. Navigate to the URL displayed in console (usually https://localhost:5001).
+4. Navigate to the URL displayed in console (usually https://localhost:5001) but my "applicationUrl": "https://localhost:7001;http://localhost:7000".
 
 ---
 
